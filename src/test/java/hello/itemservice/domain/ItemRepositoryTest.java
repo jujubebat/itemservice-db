@@ -13,10 +13,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+/**
+ * 테스트에 있는 @Transactional는 테스트가 끝나면 트랜잭션을 자동으로 롤백 시킨다.
+ * 반대로 프로덕션 코드에서는 자동 커밋해준다.
+ */
+@Transactional
 @SpringBootTest
 class ItemRepositoryTest {
 
@@ -32,7 +40,7 @@ class ItemRepositoryTest {
     @BeforeEach
     void beforeEach(){
         //각 테스트 수행전 트랜잭션 시작
-        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        //status = transactionManager.getTransaction(new DefaultTransactionDefinition());
     }
 
     @AfterEach
@@ -42,9 +50,15 @@ class ItemRepositoryTest {
             ((MemoryItemRepository) itemRepository).clearStore();
         }
         //각 테스트 수행후 트랜잭션 롤백(변경 사항 DB에 반영되지 않음)
-        transactionManager.rollback(status);
+        //transactionManager.rollback(status);
     }
 
+    /**
+     * 이 테스트에서만 실제 디비에 데이터가 잘 들어갔는지 확인해보고 싶다면,
+     * @Commit(or @Rollback(false)), @Transactional를 붙여준다.
+     */
+//    @Commit // or @Rollback(false)
+//    @Transactional
     @Test
     void save() {
         //given
